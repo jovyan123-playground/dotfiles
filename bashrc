@@ -129,9 +129,13 @@ function gpa() {
 }
 
 
+function get_default_branch() {
+    git remote show upstream | grep 'HEAD branch' | cut -d' ' -f5
+}
+
+
 function gn() {
-    default_branch=$(git remote show upstream | grep 'HEAD branch' | cut -d' ' -f5)
-    branch=${2:-${default_branch}}
+    branch=${2:-$(get_default_branch)}
     git fetch upstream ${branch}
     git checkout -b "$1" upstream/${branch}
     bell
@@ -140,14 +144,13 @@ function gn() {
 
 unalias grb 2>/dev/null
 function grb() {
-    default_branch=$(git remote show upstream | grep 'HEAD branch' | cut -d' ' -f5)
+    default_branch=$(get_default_branch)
     git fetch upstream ${default_branch}
     git rebase -i upstream/${default_branch}
 }
 
 function gpr() {
-    default_branch=$(git remote show upstream | grep 'HEAD branch' | cut -d' ' -f5)
-    git checkout ${default_branch}
+    git checkout $(get_default_branch)
     git branch -D pr/$1 2>/dev/null
     git fetch upstream pull/$1/head:pr/$1
     git checkout pr/$1
@@ -160,7 +163,7 @@ function gprelease() {
 }
 
 function gprune() {
-    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+    default_branch=$(get_default_branch)
     git co ${default_branch}
     git fetch origin
     git fetch upstream
@@ -174,7 +177,7 @@ function gprune() {
 }
 
 function gdel() {
-    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+    default_branch=$(get_default_branch)
     git co ${default_branch}
     for var in "$@"
     do
@@ -189,7 +192,7 @@ function gclone() {
     git clone git@github.com:$user/$2
     cd $2
     git remote add upstream git@github.com:$user/$2.git
-    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+    default_branch=$(get_default_branch)
     git pull upstream ${default_branch} -X theirs
     bell
 }
@@ -199,7 +202,7 @@ function gclonea() {
     git clone git@github.com:$1/$2
     cd $2
     git remote add upstream git@github.com:$1/$2.git
-    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+    default_branch=$(get_default_branch)
     git pull upstream ${default_branch}
     bell
 }
