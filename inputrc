@@ -1,8 +1,0 @@
-$include /etc/inputrc
-"\e[A":history-search-backward
-"\e[B":history-search-forward
-"\C-n":history-search-forward
-"\C-p":history-search-backward
-
-# ignore case on TAB-completion
-set completion-ignore-case On

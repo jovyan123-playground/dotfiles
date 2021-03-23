@@ -1,11 +1,10 @@
 set -ex
 mkdir -p $HOME/workspace/jupyter
 
-cp bash_profile ~/.bash_profile
+cp zshrc ~/.zshrc
 cp bashrc ~/.bashrc
 cp gitignore ~/.gitignore
 cp gitconfig ~/.gitconfig
-cp inputrc ~/.inputrc
 cp pdbrc ~/.pdbrc
 cp pypirc ~/.pypirc
 cp condarc ~/.condarc
