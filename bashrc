@@ -118,6 +118,7 @@ function bell() {
 }
 
 
+unalias gca 2>/dev/null
 function gca() {
     git commit -a -m "${@: -1}"
 }
