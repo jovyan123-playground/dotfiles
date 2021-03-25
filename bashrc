@@ -59,10 +59,47 @@ function py-release {
     bell
 }
 
+function conda-release {
+    # Get metadata - copy sha to clipboard
+    shasum -a 256 dist/*.tar.gz | awk '{printf $1;}' | pbcopy
+    local name=`python setup.py --name 2>/dev/null`
+    local version=`python setup.py --version 2>/dev/null`
+    local branch=`git rev-parse --abbrev-ref HEAD`
+    # Open the feedstock in the browser
+    open https://github.com/conda-forge/$name-feedstock
+    # Create a branch
+    cd ~/workspace/jupyter/$name-feedstock
+    git fetch upstream $branch
+    git checkout -b "release-$version" upstream/$branch
+    # Open the recipe for editing
+    code recipe/meta.yaml
+}
+
+function gra {
+    if [[ $# -ne 1 ]]; then
+        echo "Specify user"
+    fi
+    local name=$1
+    if [[ $# -eq 2 ]]; then
+        name=$2
+    fi
+    local origin=$(git remote get-url origin)
+    local repo=$(basename $origin .git)
+    git remote add $name git@github.com:$1/$repo
+    git fetch $name
+    bell
+}
+
 
 function jlm {
     conda activate jlab-master
     cd ~/workspace/jupyter/jlab-master
+}
+
+
+function js {
+    conda activate jpserver
+    cd ~/workspace/jupyter/jupyter_server
 }
 
 
