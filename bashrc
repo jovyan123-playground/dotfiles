@@ -246,6 +246,15 @@ function gclonea() {
 }
 
 
+function gupdate() {
+    local current=$(git branch --show-current)
+    git checkout master
+    git pull upstream master -X theirs
+    git push origin master --no-verify
+    git checkout $current
+}
+
+
 unalias gra 2>/dev/null
 function gra {
     if [[ $# -ne 1 ]]; then
