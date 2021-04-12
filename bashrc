@@ -59,49 +59,6 @@ function py-release {
     bell
 }
 
-function conda-release {
-    # Get metadata - copy sha to clipboard
-    shasum -a 256 dist/*.tar.gz | awk '{printf $1;}' | pbcopy
-    local name=`python setup.py --name 2>/dev/null`
-    local version=`python setup.py --version 2>/dev/null`
-    local branch=`git rev-parse --abbrev-ref HEAD`
-    # Open the feedstock in the browser
-    open https://github.com/conda-forge/$name-feedstock
-    # Create a branch
-    cd ~/workspace/jupyter/$name-feedstock
-    git fetch upstream $branch
-    git checkout -b "release-$version" upstream/$branch
-    # Open the recipe for editing
-    code recipe/meta.yaml
-}
-
-function gra {
-    if [[ $# -ne 1 ]]; then
-        echo "Specify user"
-    fi
-    local name=$1
-    if [[ $# -eq 2 ]]; then
-        name=$2
-    fi
-    local origin=$(git remote get-url origin)
-    local repo=$(basename $origin .git)
-    git remote add $name git@github.com:$1/$repo
-    git fetch $name
-    bell
-}
-
-
-function jlm {
-    conda activate jlab-master
-    cd ~/workspace/jupyter/jlab-master
-}
-
-
-function js {
-    conda activate jpserver
-    cd ~/workspace/jupyter/jupyter_server
-}
-
 
 # aliases
 alias u='cd ..;'
@@ -153,6 +110,7 @@ function bell() {
     tput bel
     say "I finished that long thing I did" 2>/dev/null
 }
+
 
 
 unalias gca 2>/dev/null
@@ -225,6 +183,11 @@ function gdel() {
     bell
 }
 
+function gdeltag() {
+    git tag -d $1
+    git push --delete origin $1
+}
+
 function gclone() {
     local user=$(git config  github.user)
     git clone git@github.com:$user/$2
@@ -250,7 +213,7 @@ function gupdate() {
     local current=$(git branch --show-current)
     git checkout master
     git pull upstream master -X theirs
-    git push origin master --no-verify
+    git push origin master --no-verify -f
     git checkout $current
 }
 
@@ -277,6 +240,21 @@ tmp-conda() {
     conda create -y -p /tmp/conda_envs/${name} ipykernel python=3.8 ipdb
     conda activate /tmp/conda_envs/${name}
     bell
+}
+
+
+workon() {
+    local name=$1
+    local env=${name}_env
+    cd ~/workspace/jupyter/$name
+    local check_env=$(conda env list | grep $env)
+    if [ -z "${check_env}" ]; then
+        conda create -y -n $env python=3.8 jupyterlab ipdb nodejs
+        conda activate $env
+        pip install -e ".[test]"
+    else
+        conda activate $env
+    fi
 }
 
 
