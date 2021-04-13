@@ -132,7 +132,7 @@ function get_default_branch() {
 
 function gn() {
     branch=${2:-$(get_default_branch)}
-    git fetch upstream ${branch}
+    gupdate ${branch}
     git checkout -b "$1" upstream/${branch}
     bell
 }
@@ -211,10 +211,19 @@ function gclonea() {
 
 function gupdate() {
     local current=$(git branch --show-current)
-    git checkout master
-    git pull upstream master -X theirs
-    git push origin master --no-verify -f
+    local target=${1:-master}
+    local dirty="false"
+    if [[ $(git diff --stat) != '' ]]; then
+        dirty="true"
+        git stash
+    fi
+    git checkout $target
+    git pull upstream $target -X theirs
+    git push origin $target --no-verify -f
     git checkout $current
+    if [[ ${dirty} == "true" ]]; then
+        git stash apply
+    fi
 }
 
 
@@ -251,7 +260,7 @@ workon() {
     if [ -z "${check_env}" ]; then
         conda create -y -n $env python=3.8 jupyterlab ipdb nodejs
         conda activate $env
-        pip install -e ".[test]"
+        pip install -e ".[test]"; true
     else
         conda activate $env
     fi
